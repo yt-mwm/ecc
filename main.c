@@ -162,29 +162,40 @@ main(int argc, char *argv[])
 	}
 
 	if(!notalk_flag) {
-		char talk[] =	"void talk(char *buffer) {\n"
-						"	int i = 0;\n"
-						"	while(buffer[i] != '\\0') {\n"
-						"		__asm__ __volatile__ (\n"
-						"			\"movq $1, \%\%rax\\n\"\n"
-						"			\"movq $1, \%\%rdi\\n\"\n"
-						"			\"movq \%[ch], \%\%rsi\\n\"\n"
-						"			\"movq $1, \%\%rdx\\n\"\n"
-						"			\"syscall\\n\"\n"
-						"			:\n"
-						"			: [ch] \"r\" (&buffer[i])\n"
-						"			: \"rax\", \"rdi\", \"rdx\", \"rcx\", \"r11\" \n"
-						"		);\n"
-						"		i++;\n"	
-						"	}\n"
-						"}\n";
-		fprintf(out, "\n%s\n", talk);
+		fprintf(out,
+			"void talk(char *buffer) {\n"
+			"	int i = 0;\n"
+			"	while(buffer[i] != '\\0') {\n"
+			"		__asm__ __volatile__ (\n"
+			"			\"movq $1, %%%%rax\\n\"\n"
+			"			\"movq $1, %%%%rdi\\n\"\n"
+			"			\"movq %%[ch], %%%%rsi\\n\"\n"
+			"			\"movq $1, %%%%rdx\\n\"\n"
+			"			\"syscall\\n\"\n"
+			"			:\n"
+			"			: [ch] \"r\" (&buffer[i])\n"
+			"			: \"rax\", \"rdi\", \"rdx\", \"rcx\", \"r11\" \n"
+			"		);\n"
+			"		i++;\n"	
+			"	}\n"
+			"}\n"
+			);
 	}
 	
 	fprintf(out, "int main() {\n");
 
 	parse(in, out, debug_flag);
 	
+	if(nostd_flag) {
+		fprintf(out,
+			"__asm__ __volatile__(\n"
+			"	\"movq $60, %%rax\\n\"\n"
+			"	\"movq $0, %%rdi\\n\"\n"
+			"	\"syscall\\n\"\n"
+			");\n"
+		);
+		
+	}
 	fprintf(out, "}\n");
 	fclose(in);
 	fclose(out);
