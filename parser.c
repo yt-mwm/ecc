@@ -96,7 +96,7 @@ var_val(Token *token)
 
 
 void
-parse(FILE *in, FILE *out, int debug_flag)
+parse(FILE *in, FILE *out, int debug_flag, int nostd_flag)
 {
 	token = get_next_token(in);
 	char buffer[255];
@@ -247,15 +247,24 @@ parse(FILE *in, FILE *out, int debug_flag)
 
 		else if(token.type == TOKEN_RETURN) {
 			match(TOKEN_RETURN, in, debug_flag);
-			fprintf(out, "return ");
-
 			strcpy(buffer, var_val(&token));
 			if(buffer[0] == '\0')
 				goto SyntaxError;
 
 			match(token.type, in, debug_flag);
 			match(TOKEN_COLON, in, debug_flag);	
-			fprintf(out, "%s;\n", buffer);
+			if(nostd_flag) {
+				fprintf(out,
+					"__asm__ __volatile__(\n"
+					"	\"movq $60, %%rax\\n\"\n"
+					"	\"movq $0, %%rdi\\n\"\n"
+					"	\"syscall\\n\"\n"
+					");\n"
+				);
+				checkeof();
+				continue;
+			}
+			fprintf(out, "return %s;\n", buffer);
 			checkeof();
 		}
 
