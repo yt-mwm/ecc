@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2026  yt-mwm]
+ *  Copyright (C) 2026  yt-mwm
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  */
 
 void 
-parse(FILE *in, FILE *out, int debug_flag);
+parse(FILE *in, FILE *out, int debug_flag, int nostd_flag);
 
 void 
 match(unsigned int type, FILE *in, int debug_flag);
