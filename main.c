@@ -184,18 +184,8 @@ main(int argc, char *argv[])
 	
 	fprintf(out, "int main() {\n");
 
-	parse(in, out, debug_flag);
+	parse(in, out, debug_flag, nostd_flag);
 	
-	if(nostd_flag) {
-		fprintf(out,
-			"__asm__ __volatile__(\n"
-			"	\"movq $60, %%rax\\n\"\n"
-			"	\"movq $0, %%rdi\\n\"\n"
-			"	\"syscall\\n\"\n"
-			");\n"
-		);
-		
-	}
 	fprintf(out, "}\n");
 	fclose(in);
 	fclose(out);
