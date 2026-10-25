@@ -16,41 +16,30 @@
  */
 
 typedef enum {
-						          //                              num
+                        //                              num
 	TOKEN_COLON,        // ':'                          0
 	TOKEN_STR,          // '"'                          1
 	TOKEN_OPAR,         // '('                          2
 	TOKEN_CPAR,         // ')'                          3
-	TOKEN_OPEN,         // '{'                          4
-	TOKEN_CLOSE,        // '}'                          5
-	TOKEN_EQU,          // '='                          6
-	TOKEN_PLUS,         // '+'                          7
-	TOKEN_MINUS,        // '-'                          8
-	TOKEN_MUL,          // '*'                          9 
-	TOKEN_DIV,          // '/'                          10
-	TOKEN_MOD,          // '%'                          11
-	TOKEN_XOR,          // '^'                          12
-	TOKEN_RSHT,         // ">>"                         13
-	TOKEN_LSHT,         // "<<"                         14
-	TOKEN_CMP,          // "=="                         15
-	TOKEN_NCMP,         // "!="                         16
-	TOKEN_GREAT,        // '>'                          17
-	TOKEN_LESS,         // '<'                          18
-	TOKEN_INT,          // int type                     19
-	TOKEN_WORD,         // char type                    20
-	TOKEN_LONG,         // long int type                21
-	TOKEN_VAR,          // variable name                22
-	TOKEN_VAL,          // value                        23
-	TOKEN_IF,           // if operator                  24
-	TOKEN_ELSE,         // else operator                25
-	TOKEN_WORKIF,       // while loop                   26
-	TOKEN_RETURN,       // return                       27
-	TOKEN_EOF,          // end of file                  28
-	TOKEN_ERR,          // incorrect token              29
-	TOKEN_C,            // can write C in Eblang :)     30
-	TOKEN_IGNORE,       // ignore a string in parser    31 
-
-	TOKEN_TALK          // just print characters        32
+	TOKEN_EQU,          // '='                          4
+	TOKEN_PLUS,         // '+'                          5
+	TOKEN_MINUS,        // '-'                          6
+	TOKEN_RSHT,         // ">>"                         7 
+	TOKEN_LSHT,         // "<<"                         8 
+	TOKEN_CMP,          // "=="                         9 
+	TOKEN_NCMP,         // "!="                         10
+	TOKEN_INT,          // int type                     11
+	TOKEN_WORD,         // char type                    12
+	TOKEN_VAR,          // variable name                13
+	TOKEN_VAL,          // value                        14
+	TOKEN_IF,           // if operator                  15
+	TOKEN_WORKIF,       // while loop                   16
+	TOKEN_RETURN,       // return                       17
+	TOKEN_EOF,          // end of file                  18
+	TOKEN_ERR,          // incorrect token              19
+	TOKEN_C,            // can write C in Eblang :)     20
+	TOKEN_IGNORE,       // ignore a string in parser    21 
+	TOKEN_TALK          // just print characters        22
 
 } Tokenlist;
 
