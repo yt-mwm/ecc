@@ -118,7 +118,7 @@ main(int argc, char *argv[])
 			i++;
 		}
 		else if(set_flag(i, argv, "-v")) {
-			puts("version 0.1 ECC (Eblang Compiler to C) by mwm.");
+			puts("version 0.2 ECC (Eblang Compiler to C) by mwm.");
 			exit(0);
 		}
 
