@@ -22,12 +22,19 @@
 #include "parser.h"
 
 Token token;
+int forgc = 0;
 
 void
 match(unsigned int type, FILE *in, int debug_flag)
 {
+	forgc++;
 	if(token.type == type) {
 		token = get_next_token(in);
+		if(forgc == 10) {
+			forgc = 0;
+			printf("Sorry, I forgot what the '%s' token means.\n", token.text);
+			token = get_next_token(in);
+		}
 		if(debug_flag)
 			printf("token:\t%d\t\'%s\'\n", token.type, token.text);
 		return;
@@ -36,43 +43,21 @@ match(unsigned int type, FILE *in, int debug_flag)
 	printf("\033[31mSyntax Error!!!\033[0m Your stupid head pass incorrect token \'%s\' when ECC wait a %d\n", token.text, type);
 }
 
-void
-checkeof() 
-{
-	if(token.type == TOKEN_EOF)
-		return;
-}
-
-char *
+char*
 data_types(int type)
 {
-	char *str = NULL;
-
-	switch(type) {
-		case TOKEN_INT:
-			str = "int";
-			break;
-		
-		case TOKEN_WORD:
-			str = "char";
-			break;
+	if(type == TOKEN_INT)
+		return "int";
 	
-		case TOKEN_LONG:
-			str = "long int";
-			break;
-					
-		default:
-			printf("test\n");
-			//goto SyntaxError;
-			break;
-	}
-	return str;
+	else if(type == TOKEN_WORD)
+		return "char";
+	return "";
 }
 
 char*
 get_sign(Token *token)
 {
-	if(token->type >= 6 && token->type <= 14)
+	if(token->type >= 4 && token->type <= 8)
 		return token->text;
 	return "";
 }
@@ -80,7 +65,7 @@ get_sign(Token *token)
 char*
 get_cmp(Token *token)
 {
-	if(token->type >= 15 && token->type <= 18)
+	if(token->type == 9 || token->type <= 10)
 		return token->text;
 	return "";
 
@@ -89,7 +74,7 @@ get_cmp(Token *token)
 char*
 var_val(Token *token)
 {
-	if(token->type == 22 || token->type == 23)
+	if(token->type == 13 || token->type == 14)
 		return token->text;
 	return "";
 }
@@ -99,6 +84,7 @@ void
 parse(FILE *in, FILE *out, int debug_flag, int nostd_flag)
 {
 	token = get_next_token(in);
+	int ccount = 0;
 	char buffer[255];
 	char buffer2[255];
 	char buffer3[255];
@@ -109,9 +95,16 @@ parse(FILE *in, FILE *out, int debug_flag, int nostd_flag)
 		if(debug_flag)
 			printf("\n`%s`\n", token.text);	
 		
+		if(ccount > 10) {
+			printf("You wrote to much C code.\n");
+			exit(1);
+		}
 
-		if(token.type >= 19 && token.type <= 21) {			
-			char *type = data_types(token.type);
+		if(token.type == 11 || token.type == 12) {			
+			char type[5];
+			strcpy(type, data_types(token.type));
+			if(type[0] == '\0')
+				goto SyntaxError;
 			match(token.type, in, debug_flag);
 			strcpy(buffer, token.text);
 			match(TOKEN_VAR, in, debug_flag);
@@ -162,10 +155,8 @@ parse(FILE *in, FILE *out, int debug_flag, int nostd_flag)
 			match(TOKEN_COLON, in, debug_flag);
 
 			strcpy(buffer, var_val(&token));
-			if(buffer[0] == '\0') {
-				printf("error here\n%s\n", buffer);
+			if(buffer[0] == '\0') 
 				goto SyntaxError;
-			}
 			
 			match(token.type, in, debug_flag);
 			if(token.type == TOKEN_COLON) {
@@ -186,11 +177,6 @@ parse(FILE *in, FILE *out, int debug_flag, int nostd_flag)
 			match(token.type, in, debug_flag);
 			match(TOKEN_COLON, in, debug_flag);
 			fprintf(out, "if(%s %s %s)\n", buffer, sign, buffer2);
-		}
-
-		else if(token.type == TOKEN_ELSE) {
-			match(TOKEN_ELSE, in, debug_flag);
-			fprintf(out, "else\n");
 		}
 
 		else if(token.type == TOKEN_WORKIF) {
@@ -222,22 +208,27 @@ parse(FILE *in, FILE *out, int debug_flag, int nostd_flag)
 			fprintf(out, "while(%s %s %s)\n", buffer, sign, buffer2);
 		}
 
-		else if(token.type == TOKEN_OPEN) {
-			match(TOKEN_OPEN, in, debug_flag);
+		else if(token.type == TOKEN_OPAR) {
+			match(TOKEN_OPAR, in, debug_flag);
 			fprintf(out, "{\n");
 		}
-		else if(token.type == TOKEN_CLOSE) {
-			match(TOKEN_CLOSE, in, debug_flag);
+		else if(token.type == TOKEN_CPAR) {
+			match(TOKEN_CPAR, in, debug_flag);
 			fprintf(out, "}\n");
-			checkeof();
 		}
 	
 		else if(token.type == TOKEN_C) {
-			
+			ccount++;	
 			match(TOKEN_C, in, debug_flag);
 			match(TOKEN_OPAR, in, debug_flag);
-
+			
+			int linec = 0;
 			while(token.type != TOKEN_CPAR) {
+				linec++;	
+				if(linec > 5) {
+					printf("Oops! I don't know C syntax.\n");
+					exit(1);
+				}
 				strcpy(buffer, token.text);
 				match(TOKEN_IGNORE, in, debug_flag);
 				fprintf(out, "%s\n", buffer);
@@ -256,16 +247,18 @@ parse(FILE *in, FILE *out, int debug_flag, int nostd_flag)
 			if(nostd_flag) {
 				fprintf(out,
 					"__asm__ __volatile__(\n"
-					"	\"movq $60, %%rax\\n\"\n"
-					"	\"movq $0, %%rdi\\n\"\n"
+					"	\"movl $60, %%%%eax\\n\"\n"
+					"	\"movl %%[ret], %%%%edi\\n\"\n"
 					"	\"syscall\\n\"\n"
-					");\n"
+					"	:\n"
+					"	: [ret] \"r\" ((int)%s)\n"
+					"	: \"eax\", \"edi\", \"rcx\", \"r11\" \n"
+					");\n",
+					buffer
 				);
-				checkeof();
 				continue;
 			}
 			fprintf(out, "return %s;\n", buffer);
-			checkeof();
 		}
 
 		else if(token.type == TOKEN_TALK) {
@@ -285,6 +278,6 @@ parse(FILE *in, FILE *out, int debug_flag, int nostd_flag)
 	return;
 
 	SyntaxError:
-		printf("\033[31mSyntax Error!!!\033[0m Unknow instruction WTF??? %d %s\n", token.type, token.text);
+		printf("\033[31mSyntax Error!!!\033[0m WTF??? %d %s\n", token.type, token.text);
 		exit(1);
 }
