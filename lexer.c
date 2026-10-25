@@ -109,44 +109,37 @@ get_next_token(FILE *file)
 	if(c == '-') 
 		return write_token(token, TOKEN_MINUS, "-");
 
-	if(c == '*') 
-		return write_token(token, TOKEN_MUL, "*");
-
-	if(c == '/') 
-		return write_token(token, TOKEN_DIV, "/");
-
-	if(c == '%')
-		return write_token(token, TOKEN_MOD, "%");
-
-	if(c == '^')
-		return write_token(token, TOKEN_XOR, "^");
-
-
 	if(c == '>') { 
 		ungetc(c, file);
 		if(check_word(">>", file)) 
 			return write_token(token, TOKEN_RSHT, ">>");
+
 		c = fgetc(file);
-		return write_token(token, TOKEN_GREAT, ">");
+		error(token);
+		return token;
 	}
 
 	if(c == '<') { 
 		ungetc(c, file);
 		if(check_word("<<", file)) 
 			return write_token(token, TOKEN_LSHT, "<<");
+	
 		c = fgetc(file);
-		return write_token(token, TOKEN_LESS, "<");
-	}
-
-	if(c == 'l') {
-		ungetc(c, file);
-		if(check_word("long", file)) 
-			return write_token(token, TOKEN_LONG, "long");
-
-		c =fgetc(file);
 		error(token);
 		return token;
 	}
+
+	if(c == '_') {
+		ungetc(c, file);
+		if(check_word("_c_", file)) 
+			return write_token(token, TOKEN_C, "_c_");
+		
+		c = fgetc(file);
+		error(token);
+		return token;
+	}
+
+
 
 	if(c == 't') {
 		ungetc(c, file);
@@ -155,8 +148,19 @@ get_next_token(FILE *file)
 
 		c = fgetc(file);
 		error(token);
+		return token; 
+	}
+
+	if(c == 'e') {
+		ungetc(c, file);
+		if(check_word("eof", file)) 
+			return write_token(token, TOKEN_EOF, "eof");
+
+		c = fgetc(file);
+		error(token);
 		return token;
 	}
+
 
 	if(c == 'i') {
 		ungetc(c, file);
@@ -165,19 +169,6 @@ get_next_token(FILE *file)
 
 		if(check_word("if", file)) 
 			return write_token(token, TOKEN_IF, "if");
-
-		c = fgetc(file);
-		error(token);
-		return token;
-	}
-	
-	if(c == 'e') {
-		ungetc(c, file);
-		if(check_word("el", file)) 
-			return write_token(token, TOKEN_ELSE, "el");
-
-		if(check_word("eof", file)) 
-			return write_token(token, TOKEN_EOF, "eof");
 
 		c = fgetc(file);
 		error(token);
@@ -197,17 +188,6 @@ get_next_token(FILE *file)
 		return token;
 	}
 	
-	if(c == '_') {
-		ungetc(c, file);
-		if(check_word("_c_", file)) 
-			return write_token(token, TOKEN_C, "_c_");
-		
-		c = fgetc(file);
-		error(token);
-		return token;
-	}
-
-
 	if(c == '#') {
 		ungetc(c, file);
 		if(check_word("#?", file)) {
@@ -216,12 +196,6 @@ get_next_token(FILE *file)
 		}
 		if(check_word("#!", file)) 
 			return write_token(token, TOKEN_RETURN, "#!");
-
-		if(check_word("#*", file)) 
-			return write_token(token, TOKEN_OPEN, "#*");
-
-		if(check_word("#_", file)) 
-			return write_token(token, TOKEN_CLOSE, "#_");
 
 		c = fgetc(file);
 		error(token);
