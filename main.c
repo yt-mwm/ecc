@@ -154,12 +154,6 @@ main(int argc, char *argv[])
 		list *next = icurr->next;
 		icurr = next;
 	}
-	list *wcurr = whead;
-	while(wcurr != NULL) {
-		fprintf(out, "%s ", wcurr->str);
-		list *next = wcurr->next;
-		wcurr = next;
-	}
 
 	if(!notalk_flag) {
 		fprintf(out,
@@ -182,7 +176,13 @@ main(int argc, char *argv[])
 			);
 	}
 	
-	fprintf(out, "int main() {\n");
+	list *wcurr = whead;
+	while(wcurr != NULL) {
+		fprintf(out, "%s\n", wcurr->str);
+		list *next = wcurr->next;
+		wcurr = next;
+	}
+	fprintf(out, "\nint main() {\n");
 
 	parse(in, out, debug_flag, nostd_flag);
 	
